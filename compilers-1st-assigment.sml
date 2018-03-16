@@ -73,13 +73,11 @@ fun interp (Module p) =
 			| update (t: table , n: id , i: int) =  [(n,i)]@t
 
 		fun update2 ([] : table, n: id, i: int): table = []@[(n,i)]
-			| update2 (head::tail: table , n: id , i: int) = let
-																val (x,q) = head
-															 in 
-																if x <> n then [head]@update2(tail,n,i)
-																else [(n,i)]@tail 
-															 end
-
+			| update2 (head::tail: table , n: id , i: int) = let val (x,q) = head
+									 in  if x <> n then [head]@update2(tail,n,i)
+									     else [(n,i)]@tail 
+									 end
+									 
 		fun interp_exp (tab, (Num n)) = (n)
 			| interp_exp (tab, (Name n)) = (lookup(tab, n))
 			| interp_exp (tab, (BinOp (n, Add, i))) = ((interp_exp(tab, n)) + (interp_exp(tab, i)))

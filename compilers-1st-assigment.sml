@@ -23,13 +23,11 @@ val p2 = Module (Expr (BinOp (Num 3, Add, Num 2))) : prog;
 
 val p3 = Module (CompoundStm (Assign ("a", Num 3), PrintStm (BinOp (Name "a", Mult, Num 2)))); 
 
-(*val p4 = Module (CompoundStm (Assign (Name ("a", Name "b") Name ("b", Name ("c", Num 1)))));
-*)
-val p5 = Module (CompoundStm (Assign ("b", Num 3), PrintStm (BinOp (Name "b", Add, Num 2))));
+val p4 = Module (CompoundStm (Assign ("b", Num 3), PrintStm (BinOp (Name "b", Add, Num 2))));
 
-val p6 = Module (CompoundStm (Assign ("coso" , Num 5), PrintStm (BinOp(Num 3, Add,BinOp(Num 2, Mult, Name "coso")))));
+val p5 = Module (CompoundStm (Assign ("coso" , Num 5), PrintStm (BinOp(Num 3, Add,BinOp(Num 2, Mult, Name "coso")))));
 
-val p7 = Module (Expr (Name "coso"));
+val p6 = Module (Expr (Name "coso"));
 (*End Test Cases*)
 
 (*Pretty Printer*)
@@ -74,6 +72,14 @@ fun interp (Module p) =
 		fun update ([] : table, n: id, i: int): table = [(n,i)]
 			| update (t: table , n: id , i: int) =  [(n,i)]@t
 
+		fun update2 ([] : table, n: id, i: int): table = []@[(n,i)]
+			| update2 (head::tail: table , n: id , i: int) = let
+																val (x,q) = head
+															 in 
+																if x <> n then [head]@update2(tail,n,i)
+																else [(n,i)]@tail 
+															 end
+
 		fun interp_exp (tab, (Num n)) = (n)
 			| interp_exp (tab, (Name n)) = (lookup(tab, n))
 			| interp_exp (tab, (BinOp (n, Add, i))) = ((interp_exp(tab, n)) + (interp_exp(tab, i)))
@@ -95,10 +101,9 @@ interp(p2);
 
 interp(p3);
 
-(*interp(p4);*)
+interp(p4);
 
 interp(p5);
 
 interp(p6);
-
 (*End run test cases*)

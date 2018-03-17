@@ -1,3 +1,8 @@
+(* Israel O. Dilan-Pantojas *)
+(* 801-11-2035 *)
+(* CCOM-4087 *)
+(* DePython Interpreter *)
+
 
 (*Datatypes*)
 type id = string
@@ -31,18 +36,23 @@ val p6 = Module (Expr (Name "coso"));
 (*End Test Cases*)
 
 (*Pretty Printer*)
+
+(*Handle modules*)
 fun pretty (Module p) = 
-	let
+	let  
+		(* Handle expressions*)
 		fun pretty_exp (Num n) = (Int.toString n)
 			| pretty_exp (Name n) = n 
 			| pretty_exp (BinOp (n, Add, i)) = pretty_exp(n) ^ " + " ^ pretty_exp(i)
 			| pretty_exp (BinOp (n, Mult, i)) = pretty_exp(n) ^  " * " ^ pretty_exp(i)
 
+		(* Handle Statements*)
 		fun pretty_stm (Assign (n,i)) = n ^ " = " ^ pretty_exp(i)
 			| pretty_stm (CompoundStm (n,i)) = pretty_stm(n) ^ "\n\t" ^ pretty_stm(i) 
 			| pretty_stm (PrintStm (n)) = "print ("^ pretty_exp(n) ^") "
 			| pretty_stm (Expr (n)) = pretty_exp(n)
 
+	(*Print padding and call function to return statment string to be printed*)
 	in print ("\n\t" ^ pretty_stm(p) ^ "\n\n")
 	end;
 (*End Pretty Printer*)
@@ -54,7 +64,7 @@ pretty(p2);
 
 pretty(p3);
 
-(*pretty(p4);*)
+pretty(p4);
 
 pretty(p5);
 
@@ -62,32 +72,42 @@ pretty(p6);
 (*End run test cases*)
 
 (*DePython Interpreter*)
+(*Interpreter Function *)
 fun interp (Module p) = 
 	let
+		(*Define a table for storing variables and values*)
 		type table = (id * int) list
 
+		(*Lookup variable value*)
 		fun lookup ([]: table, s: id): int = raise  (Fail "Unbound Identifier")
 			| lookup (((i,n)::t): table, s) = (if i <> s then lookup(t,s) else n)
 
+		(*Update variable value*)
 		fun update ([] : table, n: id, i: int): table = [(n,i)]
 			| update (t: table , n: id , i: int) =  [(n,i)]@t
 
+		(* Not used *)
+		(*Actually updates variable value*)
 		fun update2 ([] : table, n: id, i: int): table = []@[(n,i)]
 			| update2 (head::tail: table , n: id , i: int) = let val (x,q) = head
 									 in  if x <> n then [head]@update2(tail,n,i)
 									     else [(n,i)]@tail 
 									 end
-									 
+		(* Not used *)
+
+		(* Interpret expressions *)
 		fun interp_exp (tab, (Num n)) = (n)
 			| interp_exp (tab, (Name n)) = (lookup(tab, n))
 			| interp_exp (tab, (BinOp (n, Add, i))) = ((interp_exp(tab, n)) + (interp_exp(tab, i)))
 			| interp_exp (tab, (BinOp (n, Mult, i))) = ((interp_exp(tab, n)) * (interp_exp(tab, i)))
 
+		(* Interpret statements *)
 		fun interp_stm (tab, (Assign (n,i))) = (update(tab, n, interp_exp(tab, i)))
 			| interp_stm (tab, (Expr (n))) =  (interp_exp(tab, n); tab)
 			| interp_stm (tab, (CompoundStm (n,i))) = (interp_stm(interp_stm(tab, n), i))
-			| interp_stm (tab, (PrintStm (n))) = (print (Int.toString(interp_exp(tab, n)) ^"\n"); tab) 
+			| interp_stm (tab, (PrintStm (n))) = (print ( "\t" ^ Int.toString(interp_exp(tab, n)) ^"\n"); tab) 
 
+	(* Print some padding and call function to interpret statements *)
 	in print ("\n"); interp_stm([]:table, p) ; print ("\n") 
 	end;
 (*End DePython Interpreter*)
@@ -103,5 +123,12 @@ interp(p4);
 
 interp(p5);
 
-interp(p6);
+(*interp(p6);*)
+(*P6 Raises error as instructed*)
 (*End run test cases*)
+
+(* Bonus *)
+print("\n\n Print and evaluate P3 \n");
+pretty(p3); interp(p3); 
+(* Bonus *)
+

@@ -75,10 +75,10 @@ pretty(p6);
 (*Interpreter Function *)
 fun interp (Module p) = 
 	let
-		(*Define a table for storing variables and values*)
+		(*Define a table list for storing variables as id and values as int*)
 		type table = (id * int) list
 
-		(*Lookup variable value*)
+		(*Lookup variable value by name(id)*)
 		fun lookup ([]: table, s: id): int = raise  (Fail "Unbound Identifier")
 			| lookup (((i,n)::t): table, s) = (if i <> s then lookup(t,s) else n)
 

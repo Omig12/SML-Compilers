@@ -7,7 +7,7 @@
 (*Datatypes*)
 type id = string
 
-datatype binop = Add | Mult
+datatype binop = Add | Mult | Div | Sub
 
 datatype prog = Module of stm
 
@@ -33,6 +33,9 @@ val p4 = Module (CompoundStm (Assign ("b", Num 3), PrintStm (BinOp (Name "b", Ad
 val p5 = Module (CompoundStm (Assign ("coso" , Num 5), PrintStm (BinOp(Num 3, Add,BinOp(Num 2, Mult, Name "coso")))));
 
 val p6 = Module (Expr (Name "coso"));
+
+val p7 = Module (CompoundStm (Assign ("coso" , Num 2), PrintStm (BinOp(Num 8, Sub,BinOp(Num 3, Div, Name "coso")))));
+
 (*End Test Cases*)
 
 (*Pretty Printer*)
@@ -45,6 +48,8 @@ fun pretty (Module p) =
 			| pretty_exp (Name n) = n 
 			| pretty_exp (BinOp (n, Add, i)) = pretty_exp(n) ^ " + " ^ pretty_exp(i)
 			| pretty_exp (BinOp (n, Mult, i)) = pretty_exp(n) ^  " * " ^ pretty_exp(i)
+			| pretty_exp (BinOp (n, Div, i)) = pretty_exp(n) ^  " / " ^ pretty_exp(i)
+			| pretty_exp (BinOp (n, Sub, i)) = pretty_exp(n) ^  " - " ^ pretty_exp(i)
 
 		(* Handle Statements*)
 		fun pretty_stm (Assign (n,i)) = n ^ " = " ^ pretty_exp(i)
@@ -69,6 +74,8 @@ pretty(p4);
 pretty(p5);
 
 pretty(p6);
+
+pretty(p7);
 (*End run test cases*)
 
 (*DePython Interpreter*)
@@ -100,6 +107,9 @@ fun interp (Module p) =
 			| interp_exp (tab, (Name n)) = (lookup(tab, n))
 			| interp_exp (tab, (BinOp (n, Add, i))) = ((interp_exp(tab, n)) + (interp_exp(tab, i)))
 			| interp_exp (tab, (BinOp (n, Mult, i))) = ((interp_exp(tab, n)) * (interp_exp(tab, i)))
+			| interp_exp (tab, (BinOp (n, Div, i))) = ((interp_exp(tab, n)) div (interp_exp(tab, i)))
+			| interp_exp (tab, (BinOp (n, Sub, i))) = ((interp_exp(tab, n)) - (interp_exp(tab, i)))
+
 
 		(* Interpret statements *)
 		fun interp_stm (tab, (Assign (n,i))) = (update(tab, n, interp_exp(tab, i)))
@@ -127,8 +137,10 @@ interp(p5);
 (*P6 Raises error as instructed*)
 (*End run test cases*)
 
+interp(p7);
+
 (* Bonus *)
-print("\n\n Print and evaluate P3 \n");
-pretty(p3); interp(p3); 
+print("\n\n Print and evaluate P7 \n");
+pretty(p7); interp(p7); 
 (* Bonus *)
 
